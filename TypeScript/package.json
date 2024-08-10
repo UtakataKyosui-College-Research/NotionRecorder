@@ -1,0 +1,17 @@
+{
+  "name": "notion-recorder",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "commander": "^12.1.0",
+    "date-fns-timezone": "^0.1.4",
+    "valibot": "^0.37.0"
+  }
+}
