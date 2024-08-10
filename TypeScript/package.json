@@ -12,7 +12,6 @@
     "@notionhq/client": "^2.2.15",
     "commander": "^12.1.0",
     "date-fns-timezone": "^0.1.4",
-    "nexe": "^4.0.0-rc.6",
     "valibot": "^0.37.0"
   }
 }
