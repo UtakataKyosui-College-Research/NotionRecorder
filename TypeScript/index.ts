@@ -56,7 +56,7 @@ commandline
                                     }
                                 ]
                             },
-                            "開始時間": {
+                            "開始時刻": {
                                 type: "date",
                                 date: {
                                     start: NowDate,
@@ -78,9 +78,9 @@ commandline
                             and: [
                                 {
                                     property: "開始時刻",
-                                    type: "created_time",
-                                    created_time: {
-                                        after: formatToTimeZone(new Date(),"YYYY-MM-DD",{timeZone: "Asia/Tokyo"})
+                                    type: "date",
+                                    date: {
+                                        equals: formatToTimeZone(new Date(),"YYYY-MM-DD",{timeZone: "Asia/Tokyo"})
                                     }
                                     
                                 }
@@ -95,7 +95,7 @@ commandline
                             const end = await client.pages.update({
                                 page_id: item.id,
                                 properties: {
-                                    "終了時間": {
+                                    "終了時刻": {
                                         type: "date",
                                         date: {
                                             start: NowDate,
@@ -121,9 +121,9 @@ commandline
                             and: [
                                 {
                                     property: "開始時刻",
-                                    type: "created_time",
-                                    created_time: {
-                                        after: formatToTimeZone(new Date(),"YYYY-MM-DD",{timeZone: "Asia/Tokyo"})
+                                    type: "date",
+                                    date: {
+                                        equals: formatToTimeZone(new Date(),"YYYY-MM-DD",{timeZone: "Asia/Tokyo"})
                                     }
                                 }
                             ]
