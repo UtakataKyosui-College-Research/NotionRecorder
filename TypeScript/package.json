@@ -2,10 +2,6 @@
   "name": "notion-recorder",
   "module": "index.ts",
   "type": "module",
-  "scripts": {
-    "build:windows": "nexe -i index.js -o RecNotion.exe -t windows-x64-14.4.0",
-    "build:linux": "nexe -i index.js -o RecNotion.exe -t linux-x64-14.15.3"
-  },
   "devDependencies": {
     "@types/bun": "latest"
   },
