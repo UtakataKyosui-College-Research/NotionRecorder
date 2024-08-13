@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 clap =  {version = "4.5.13",features = ["derive"]}
 console = "0.15.8"
+dotenvy = "0.15.7"
 envy = "0.4.2"
 notion = "0.5.1"
 serde = {version = "1.0.204",features = ["derive"]}

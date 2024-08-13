@@ -1,14 +1,17 @@
 use clap::{Parser, Subcommand};
-use notion::{ids::DatabaseId, NotionApi};
+use dotenvy::dotenv;
+use std::env;
+use notion::{ids::{DatabaseId, Identifier}, NotionApi};
 use std::collections::HashMap;
 use serde::Deserialize;
 
 
-#[derive(Deserialize,Debug)]
-struct Env {
-    notion_token: String,
-    database_id: DatabaseId
+#[derive(Deserialize, Debug)]
+struct Config {
+  notion_token: String,
+  database_id: DatabaseId// String,
 }
+
 
 #[derive(Debug,Parser)]
 #[clap(
@@ -53,25 +56,34 @@ enum Subs {
 
 #[tokio::main]
 async fn main() {
-    match envy::from_env::<Env>(){
-        Ok(env) => {
-            let client = NotionApi::new(env.notion_token)
-                .expect("Notion Client Error");
-        },
-        Err(error) => {
-            panic!("{:#?}",error)
-        }
-    }
+    
+
     let args = Recs::parse();
-
-    match args.command {
-        Subs::Start { title } => {
-            let mut page_props:HashMap<String,PropertyValue> = HashMap::new();
+    dotenv().expect("dotenv Error");
+    match envy::from_env::<Config>() {
+        Ok(config) => {
+            println!("{:?}",config);
+            let client = NotionApi::new(config.notion_token)
+                .expect("Notion Client Error");
+            match args.command {
+                Subs::Start { title } => {
+                    // 開始の打刻をする
+                },
+                Subs::End { title } => {
+                    // 終了の打刻をする
+                },
+                Subs::Check => {
+                    // 今日の活動の有無を確認する
+                },
+                Subs::Times => {
+                    // これまでの活動時間の長さを確認する
+                }
+            }
         },
-        Subs::End { title } => {},
-        Subs::Check => {},
-        Subs::Times => {}
+        Err(e) => println!("{:?}",e)
     }
-
-    // println!("{}",args.title);
+    
+   
+        
+    
 }
