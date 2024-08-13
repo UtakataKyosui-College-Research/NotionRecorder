@@ -1,6 +1,14 @@
-use clap::{Parser,Subcommand};
-use notion::{chrono::Date, ids::{self, DatabaseId, PageId}, models::{properties::PropertyValue, text::RichText, Database, Page, PageCreateRequest, Parent, Properties, Utc}, NotionApi};
+use clap::{Parser, Subcommand};
+use notion::{ids::DatabaseId, NotionApi};
 use std::collections::HashMap;
+use serde::Deserialize;
+
+
+#[derive(Deserialize,Debug)]
+struct Env {
+    notion_token: String,
+    database_id: DatabaseId
+}
 
 #[derive(Debug,Parser)]
 #[clap(
@@ -43,31 +51,17 @@ enum Subs {
     Check,
 }
 
-
-fn add_work(client: &NotionApi,database_id: &str){
-    /* client.create_page(page: Page {
-        archived: false,
-        created_time: Utc::now(),
-        parent: Parent::Database { database_id: (database_id) },
-        properties: Properties { properties: () },
-        id: PageId::as_id(&self),
-        last_edited_time:: Utc::now(),
-    }) */
-   client.create_page(
-    
-   )
-}
- 
-fn client_reset() -> NotionApi{
-    let client = NotionApi::new("token".to_string()).expect("API Token Error");
-    return client;
-}
-
-fn main() {
-    let client = client_reset();
-    let database_id = "database_id";
-
-    
+#[tokio::main]
+async fn main() {
+    match envy::from_env::<Env>(){
+        Ok(env) => {
+            let client = NotionApi::new(env.notion_token)
+                .expect("Notion Client Error");
+        },
+        Err(error) => {
+            panic!("{:#?}",error)
+        }
+    }
     let args = Recs::parse();
 
     match args.command {
