@@ -1,15 +1,14 @@
 use clap::{Parser, Subcommand};
 use dotenvy::dotenv;
-use uuid::Uuid;
+use uuid::{fmt::Urn, Uuid};
 use std::str::FromStr;
 use notion::{
     ids::{DatabaseId ,PageId, PropertyId}, 
     models::{
-        properties::PropertyValue,
-        Page,
-        Properties,
-        Utc,        
-        text::{Text,RichText},
+        properties::{Color, DateValue, PropertyValue,DateOrDateTime},
+         text::{RichText, RichTextCommon, Text},
+         Page, PageCreateRequest, Properties, Utc,
+         
     },
     NotionApi
 };
@@ -67,8 +66,6 @@ enum Subs {
 
 #[tokio::main]
 async fn main() {
-    
-
     let args = Recs::parse();
     dotenv().expect("dotenv Error");
     match envy::from_env::<Config>() {
@@ -79,33 +76,87 @@ async fn main() {
             match args.command {
                 Subs::Start { title } => {
                     // 開始の打刻をする
-                    let uuid = Uuid::new_v4().to_string().as_str();
-                    let properties : HashMap<String,PropertyValue>= HashMap::new();
+                    let mut properties : HashMap<String,PropertyValue>= HashMap::new();
+
                     properties.insert(String::from("名前"), PropertyValue::Title { 
-                        id: PropertyId::from_str("id").expect("Title Property Error") ,
+                        id: PropertyId::from_str("example").expect("Title Property Id Error"),
                         title: vec![
-                            RichText {
-                               text: {
-                                    
-                               }
+                            RichText::Text {
+                                rich_text: RichTextCommon {
+                                    plain_text: title.clone(),
+                                    href: None,
+                                    annotations: None
+                                },
+                                text: Text {
+                                    content: title.clone(),
+                                    link: None
+                                }
                             }
                         ]
                     });
 
-                    let page: Page = Page {
-                        parent: notion::models::Parent::Database { database_id: (config.database_id) },
-                        created_time: Utc::now(),
-                        last_edited_time: Utc::now(),
-                        id: PageId::from_str(uuid).unwrap(),
-                        archived: false,
-                        properties: Properties {
+                    properties.insert(String::from("開始時刻"), PropertyValue::Date { 
+                        id: PropertyId::from_str(String::from("test").as_str()).unwrap(),
+                        date: Some(DateValue {
+                            start: DateOrDateTime::DateTime(Utc::now()),
+                            end: None,
+                            time_zone: Some(String::from("Asia/Tokyo"))
+                        })
+                    });
 
+
+
+                    let page_request = PageCreateRequest {
+                        parent: notion::models::Parent::Database { database_id: (config.database_id) },
+                        properties: Properties {
+                            properties
                         }
-                    }
-                    client.create_page(page)
+                    };
+                    let result = client.create_page(page_request).await
+                        .expect("Page Create Expect");
+                    println!("Create Success Page Id: {}",result.id)
                 },
                 Subs::End { title } => {
                     // 終了の打刻をする
+                    let mut properties : HashMap<String,PropertyValue>= HashMap::new();
+
+                    properties.insert(String::from("名前"), PropertyValue::Title { 
+                        id: PropertyId::from_str("example").expect("Title Property Id Error"),
+                        title: vec![
+                            RichText::Text {
+                                rich_text: RichTextCommon {
+                                    plain_text: title.clone(),
+                                    href: None,
+                                    annotations: None
+                                },
+                                text: Text {
+                                    content: title.clone(),
+                                    link: None
+                                }
+                            }
+                        ]
+                    });
+
+                    properties.insert(String::from("終了時刻"), PropertyValue::Date { 
+                        id: PropertyId::from_str(String::from("test").as_str()).unwrap(),
+                        date: Some(DateValue {
+                            start: DateOrDateTime::DateTime(Utc::now()),
+                            end: None,
+                            time_zone: Some(String::from("Asia/Tokyo"))
+                        })
+                    });
+
+
+
+                    let page_request = PageCreateRequest {
+                        parent: notion::models::Parent::Database { database_id: (config.database_id) },
+                        properties: Properties {
+                            properties
+                        }
+                    };
+                    let result = client.create_page(page_request).await
+                        .expect("Page Create Expect");
+                    println!("Create Success Page Id: {}",result.id)
                 },
                 Subs::Check => {
                     // 今日の活動の有無を確認する
@@ -117,8 +168,5 @@ async fn main() {
         },
         Err(e) => println!("{:?}",e)
     }
-    
-   
-        
     
 }
