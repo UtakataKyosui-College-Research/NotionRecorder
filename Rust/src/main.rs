@@ -1,7 +1,18 @@
 use clap::{Parser, Subcommand};
 use dotenvy::dotenv;
-use std::env;
-use notion::{ids::{DatabaseId, Identifier}, NotionApi};
+use uuid::Uuid;
+use std::str::FromStr;
+use notion::{
+    ids::{DatabaseId ,PageId, PropertyId}, 
+    models::{
+        properties::PropertyValue,
+        Page,
+        Properties,
+        Utc,        
+        text::{Text,RichText},
+    },
+    NotionApi
+};
 use std::collections::HashMap;
 use serde::Deserialize;
 
@@ -68,6 +79,30 @@ async fn main() {
             match args.command {
                 Subs::Start { title } => {
                     // 開始の打刻をする
+                    let uuid = Uuid::new_v4().to_string().as_str();
+                    let properties : HashMap<String,PropertyValue>= HashMap::new();
+                    properties.insert(String::from("名前"), PropertyValue::Title { 
+                        id: PropertyId::from_str("id").expect("Title Property Error") ,
+                        title: vec![
+                            RichText {
+                               text: {
+                                    
+                               }
+                            }
+                        ]
+                    });
+
+                    let page: Page = Page {
+                        parent: notion::models::Parent::Database { database_id: (config.database_id) },
+                        created_time: Utc::now(),
+                        last_edited_time: Utc::now(),
+                        id: PageId::from_str(uuid).unwrap(),
+                        archived: false,
+                        properties: Properties {
+
+                        }
+                    }
+                    client.create_page(page)
                 },
                 Subs::End { title } => {
                     // 終了の打刻をする
