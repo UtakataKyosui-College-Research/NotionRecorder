@@ -5,10 +5,10 @@ use std::str::FromStr;
 use notion::{
     ids::{DatabaseId ,PageId, PropertyId}, 
     models::{
-        properties::{Color, DateValue, PropertyValue,DateOrDateTime},
-         text::{RichText, RichTextCommon, Text},
-         Page, PageCreateRequest, Properties, Utc,
-         
+        properties::{self, Color, DateOrDateTime, DateValue, PropertyValue},
+        search::{DatabaseQuery, FilterCondition, PropertyCondition,TextCondition},
+        text::{RichText, RichTextCommon, Text},
+        Page, PageCreateRequest, Properties, Utc
     },
     NotionApi
 };
@@ -79,7 +79,7 @@ async fn main() {
                     let mut properties : HashMap<String,PropertyValue>= HashMap::new();
 
                     properties.insert(String::from("名前"), PropertyValue::Title { 
-                        id: PropertyId::from_str("example").expect("Title Property Id Error"),
+                        id: PropertyId::from_str("title").expect("Title Property Id Error"),
                         title: vec![
                             RichText::Text {
                                 rich_text: RichTextCommon {
@@ -96,7 +96,7 @@ async fn main() {
                     });
 
                     properties.insert(String::from("開始時刻"), PropertyValue::Date { 
-                        id: PropertyId::from_str(String::from("test").as_str()).unwrap(),
+                        id: PropertyId::from_str(String::from("start_date").as_str()).unwrap(),
                         date: Some(DateValue {
                             start: DateOrDateTime::DateTime(Utc::now()),
                             end: None,
@@ -107,7 +107,7 @@ async fn main() {
 
 
                     let page_request = PageCreateRequest {
-                        parent: notion::models::Parent::Database { database_id: (config.database_id) },
+                        parent: notion::models::Parent::Database { database_id: (config.database_id.clone()) },
                         properties: Properties {
                             properties
                         }
@@ -118,45 +118,49 @@ async fn main() {
                 },
                 Subs::End { title } => {
                     // 終了の打刻をする
-                    let mut properties : HashMap<String,PropertyValue>= HashMap::new();
-
-                    properties.insert(String::from("名前"), PropertyValue::Title { 
-                        id: PropertyId::from_str("example").expect("Title Property Id Error"),
-                        title: vec![
-                            RichText::Text {
-                                rich_text: RichTextCommon {
-                                    plain_text: title.clone(),
-                                    href: None,
-                                    annotations: None
-                                },
-                                text: Text {
-                                    content: title.clone(),
-                                    link: None
-                                }
-                            }
-                        ]
+                    // Update Programの作成ができないことがわかった
+                    /* let filter = Some(FilterCondition {
+                        property: String::from("名前"),
+                        condition: PropertyCondition::RichText(
+                            TextCondition::Equals(
+                                String::from(title)
+                            )
+                        )
                     });
 
-                    properties.insert(String::from("終了時刻"), PropertyValue::Date { 
-                        id: PropertyId::from_str(String::from("test").as_str()).unwrap(),
-                        date: Some(DateValue {
+                    let query = DatabaseQuery {
+                        filter,
+                        sorts: None,
+                        paging: None
+                    };
+
+                    let pages = client.query_database(config.database_id.clone(),query).await
+                        .expect("ListResponse Get Error");
+                    let first = pages.results.first().expect("Not Data");
+
+                    let mut update_properties = first.properties
+                        .properties
+                        .clone();
+                    update_properties.insert(String::from("終了時刻"), PropertyValue::Date { 
+                        id: PropertyId::from_str(String::from("ended_date").as_str() ).expect("End Date Id Error"),
+                        date: DateValue {
                             start: DateOrDateTime::DateTime(Utc::now()),
                             end: None,
                             time_zone: Some(String::from("Asia/Tokyo"))
-                        })
+                        }.into()
                     });
 
-
-
-                    let page_request = PageCreateRequest {
-                        parent: notion::models::Parent::Database { database_id: (config.database_id) },
+                    let update_page = PageCreateRequest {
+                        parent: notion::models::Parent::Database { database_id: (config.database_id.clone()) },
                         properties: Properties {
-                            properties
+                            properties: update_properties
                         }
                     };
-                    let result = client.create_page(page_request).await
-                        .expect("Page Create Expect");
-                    println!("Create Success Page Id: {}",result.id)
+
+                    let updated_page = client.create_page(update_page)
+                        .await.expect("Expect Page Error");
+
+                    println!("Updated Title: {}",updated_page.properties.title().expect("Title Data Get Error")); */
                 },
                 Subs::Check => {
                     // 今日の活動の有無を確認する
