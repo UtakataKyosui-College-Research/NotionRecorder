@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "googlecloudtools.cloudcode",
+        "pinage404.rust-extension-pack",
+        "rust-lang.rust-analyzer"
+    ]
+}
