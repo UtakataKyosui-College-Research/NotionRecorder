@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 use serde::Deserialize;
 use tokio;
 use dotenvy::dotenv;
-use model::{DatabaseParent, Filter, ItemDate, ListResponse, LogicalOperators, PostPage, Property, Text, TextFilter, Title, UpdateObject};
+use model::{DatabaseParent, Filter, ItemDate, ListResponse, PostPage, Property, Text, TextFilter, Title, UpdateObject};
 use reqwest::{header::{self, HeaderMap, HeaderValue}, Client, ClientBuilder};
 use std::collections::HashMap;
 mod model;
@@ -116,7 +116,7 @@ async fn main() {
                         .await
                         .unwrap();
 
-                    let text = result.text().await.expect("Fetch Error");
+                    // let text = result.text().await.expect("Fetch Error");
                 },
                 Subs::End { title } => {
                     let search_url = format!("{}/{}/{}/{}",&notion_api_url,"databases",&config.database_id,"query");
@@ -156,8 +156,7 @@ async fn main() {
                         .await
                         .expect("Update Error");
                     
-                    
-                    print!("{}",update_result.text().await.expect("Update Error"));
+                    // print!("{}",update_result.text().await.expect("Update Error"));
                 },
                 Subs::Check => {
                     // 今日の活動の有無を確認する
